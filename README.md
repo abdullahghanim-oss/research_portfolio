@@ -1,16 +1,16 @@
 # Research portfolio with automatic publication refresh
 
-This is a GitHub Pages starter for Abdullah Ghanim Jaber. The site reads `data/publications.json`, and GitHub Actions refreshes that file daily.
+This is a GitHub Pages starter for Abdullah Ghanim Jaber. The site reads `publications.json`, and GitHub Actions refreshes that file daily.
 
 ## Included
 - `index.html`: responsive research portfolio UI with search, year filter, and Scopus-status filter.
 - `update_publications.py`: retrieves records from Scopus (when an API key is configured) and OpenAlex using your ORCID; merges likely duplicates by DOI then normalized title.
 - `.github/workflows/refresh-publications.yml`: daily GitHub Actions workflow.
-- `data/publications.json`: generated data file.
+- `publications.json`: generated data file at the repository root.
 
 ## Install into your existing repository
 1. Download and extract this ZIP.
-2. Upload/replace `index.html`, `update_publications.py`, and `data/publications.json` at the repository root / `data` folder.
+2. Upload/replace `index.html`, `update_publications.py`, and `publications.json` at the repository root.
 3. Upload `.github/workflows/refresh-publications.yml` preserving the `.github/workflows` folder structure.
 4. In GitHub, open **Settings → Secrets and variables → Actions → New repository secret**.
    - Name: `SCOPUS_API_KEY`

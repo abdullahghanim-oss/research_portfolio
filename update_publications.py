@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-OUT = ROOT / "data" / "publications.json"
+OUT = ROOT / "publications.json"
 SCOPUS_AUTHOR_ID = os.getenv("SCOPUS_AUTHOR_ID", "60431094700")
 SCOPUS_API_KEY = os.getenv("SCOPUS_API_KEY", "").strip()
 ORCID = os.getenv("ORCID", "0000-0002-2901-4161")
