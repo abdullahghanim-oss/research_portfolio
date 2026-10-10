@@ -1,0 +1,42 @@
+name: Refresh research publications
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Daily at 04:17 UTC; scheduled workflows can occasionally be delayed.
+    - cron: "17 4 * * *"
+  push:
+    paths:
+      - "update_publications.py"
+      - ".github/workflows/refresh-publications.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Refresh publication data
+        env:
+          SCOPUS_API_KEY: ${{ secrets.SCOPUS_API_KEY }}
+          SCOPUS_AUTHOR_ID: "60431094700"
+          ORCID: "0000-0002-2901-4161"
+        run: python update_publications.py
+      - name: Commit refreshed data
+        run: |
+          if git diff --quiet -- publications.json; then
+            echo "No publication-data changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add publications.json
+          git commit -m "Automated publication data refresh"
+          git push
