@@ -13,8 +13,16 @@ OPENALEX_MAILTO = os.getenv("OPENALEX_MAILTO", "").strip()
 
 def get_json(url, headers=None):
     req = urllib.request.Request(url, headers=headers or {"User-Agent":"ResearchPortfolioBot/1.0 (personal academic website)"})
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        return json.load(resp)
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return json.load(resp)
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace")
+        # API responses may include useful request validation details; do not print request headers/secrets.
+        print(f"HTTP {e.code} from data provider.")
+        if body:
+            print("Provider response (truncated):", body[:1500])
+        raise
 
 def norm_title(s):
     return re.sub(r"[^a-z0-9]+", " ", (s or "").lower()).strip()
@@ -36,8 +44,16 @@ def fetch_scopus():
     if not SCOPUS_API_KEY:
         print("SCOPUS_API_KEY not set; skipping Scopus API.")
         return None
+    # Scopus Search API accepts AU-ID as the author identifier search field.
+    # Keep query syntax simple and use the documented STANDARD view.
     query = f"AU-ID({SCOPUS_AUTHOR_ID})"
-    params = urllib.parse.urlencode({"query":query,"count":200,"start":0,"sort":"-coverDate","view":"STANDARD"})
+    params = urllib.parse.urlencode({
+        "query": query,
+        "count": 25,
+        "start": 0,
+        "sort": "-coverDate",
+        "view": "STANDARD"
+    })
     url = "https://api.elsevier.com/content/search/scopus?" + params
     data = get_json(url, {"X-ELS-APIKey":SCOPUS_API_KEY,"Accept":"application/json","User-Agent":"ResearchPortfolioBot/1.0"})
     sr = data.get("search-results", {})
@@ -117,7 +133,12 @@ def merge(scopus, openalex):
     return out
 
 def main():
-    scopus=fetch_scopus()
+    scopus=None
+    try:
+        scopus=fetch_scopus()
+    except Exception as e:
+        print("Scopus lookup failed; continuing with fallback metadata source.")
+        print(f"Scopus error type: {type(e).__name__}")
     openalex=[]
     try: openalex=fetch_openalex()
     except Exception as e: print("OpenAlex fetch failed:",e)

@@ -38,3 +38,7 @@ Google Scholar does not offer an official public API for arbitrary profile publi
 - Scopus Author ID: `60431094700`
 - ORCID: `0000-0002-2901-4161`
 - Google Scholar: https://scholar.google.com/citations?user=6HiI4toAAAAJ&hl=en
+
+
+## Troubleshooting HTTP 400
+The updater now prints a truncated provider response body to help diagnose invalid request parameters. If Scopus returns HTTP 400, check the message in the Actions log; it may indicate a query or API endpoint issue. The script will continue with OpenAlex metadata when Scopus fails, but it will not label OpenAlex-only papers as Scopus indexed.
